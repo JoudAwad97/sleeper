@@ -1,8 +1,8 @@
 version: '3'
 services:
   db:
-    image: mongo
+    image: mysql
     ports:
-      - 27017:27017
-    environment:
-      - MONGODB_DATABASE="sleeper"
+      - 3306:3306
+    env_file:
+      - .env
