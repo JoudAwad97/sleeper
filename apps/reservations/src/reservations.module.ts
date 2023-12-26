@@ -10,7 +10,7 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_SERVICE } from '@app/common/constants/services';
+import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common/constants/services';
 
 @Module({
   imports: [
@@ -32,6 +32,28 @@ import { AUTH_SERVICE } from '@app/common/constants/services';
           transport: Transport.TCP,
           options: {
             port: configService.get('AUTH_TCP_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
+    ClientsModule.registerAsync([
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            port: configService.get('AUTH_TCP_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: PAYMENTS_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            port: configService.get('PAYMENTS_TCP_PORT'),
           },
         }),
         inject: [ConfigService],

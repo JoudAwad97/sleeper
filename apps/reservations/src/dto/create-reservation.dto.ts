@@ -1,5 +1,11 @@
+import { CreateChargeDto } from '@app/common';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsDefined,
+  IsNotEmptyObject,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateReservationDto {
   @IsDate()
@@ -10,11 +16,14 @@ export class CreateReservationDto {
   @Type(() => Date)
   endDate: Date;
 
-  @IsString()
-  @IsNotEmpty()
-  placeId: string;
-
-  @IsString()
-  @IsNotEmpty()
-  invoiceId: string;
+  @IsDefined()
+  @IsNotEmptyObject()
+  @ValidateNested()
+  /**
+   * We are not allowed to pass a plain class to the validation we need to pass a type that it knows about it
+   * so for that we use the "@Type" decorator from "class-transformer
+   * this will create a new instance of the class and then validate it with the class-validator this is how to handle nested objects validation
+   */
+  @Type(() => CreateChargeDto)
+  charge: CreateChargeDto;
 }
