@@ -7,6 +7,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './user.repository';
 import * as bcrypt from 'bcryptjs';
 import { GetUserDto } from './dto/get-user.dto';
+import { Role } from './model/role.entity';
+import { User } from './model/user.entity';
 
 @Injectable()
 export class UsersService {
@@ -19,10 +21,13 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     await this.validateCreateUserDto(createUserDto);
 
-    return this.usersRepository.create({
+    const user = new User({
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, 10),
+      roles: createUserDto.roles?.map((role) => new Role(role)),
     });
+
+    return this.usersRepository.create(user);
   }
 
   private async validateCreateUserDto(createUserDto: CreateUserDto) {

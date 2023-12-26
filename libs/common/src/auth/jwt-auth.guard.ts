@@ -58,7 +58,7 @@ export class JwtAuthGuard implements CanActivate {
            */
           if (roles) {
             for (const role of roles) {
-              if (!res.roles.includes(role)) {
+              if (!res.roles?.map((role) => role).includes(role)) {
                 this.logger.error(
                   `User ${res.email} is not allowed to access this route`,
                 );

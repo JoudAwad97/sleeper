@@ -36,7 +36,7 @@ export class ReservationsController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.reservationsService.findOne(id);
+    return this.reservationsService.findOne(+id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -45,7 +45,7 @@ export class ReservationsController {
     @Param('id') id: string,
     @Body() updateReservationDto: UpdateReservationDto,
   ) {
-    return this.reservationsService.update(id, updateReservationDto);
+    return this.reservationsService.update(+id, updateReservationDto);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -56,6 +56,6 @@ export class ReservationsController {
    */
   @Roles('Admin')
   async remove(@Param('id') id: string) {
-    return this.reservationsService.remove(id);
+    return this.reservationsService.remove(+id);
   }
 }
