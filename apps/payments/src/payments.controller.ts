@@ -11,6 +11,6 @@ export class PaymentsController {
   // add validation to the @MessagePattern data coming to this endpoint
   @UsePipes(new ValidationPipe())
   async createCharge(@Payload() data: PaymentsCreateChargeDto) {
-    return this.paymentsService.createCharge(data.card, data.amount);
+    return this.paymentsService.createCharge(data);
   }
 }
