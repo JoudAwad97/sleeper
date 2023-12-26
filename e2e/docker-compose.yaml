@@ -1,0 +1,8 @@
+services:
+  e2e:
+    build:
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./spec:/user/sec/app/specs
+  # Add all the other services of microservices in here so we can access them and run the test against them
+  # check either the repo or the github URL of the repo
