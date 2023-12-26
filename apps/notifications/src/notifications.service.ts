@@ -18,13 +18,13 @@ export class NotificationsService {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async notifyEmail({ email }: NotifyEmailDto) {
+  async notifyEmail({ email, text }: NotifyEmailDto) {
     console.log(`Sending email to ${email}`);
     await this.transporter.sendMail({
       from: this.configService.get('SMTP_USER'),
       to: email,
       subject: 'Payment received',
-      text: 'Payment received',
+      text,
     });
   }
 }
