@@ -1,7 +1,11 @@
-import { NOTIFICATIONS_SERVICE } from '@app/common';
+import {
+  NOTIFICATIONS_SERVICE,
+  NOTIFICATION_SERVICE_NAME,
+  NotificationServiceClient,
+} from '@app/common';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientGrpc } from '@nestjs/microservices';
 import Stripe from 'stripe';
 import { PaymentsCreateChargeDto } from './dto/payments-create-charge.dto';
 
@@ -14,17 +18,23 @@ export class PaymentsService {
       apiVersion: '2023-10-16',
     },
   );
+  private notificationService: NotificationServiceClient;
 
   constructor(
     private readonly configService: ConfigService,
     @Inject(NOTIFICATIONS_SERVICE)
-    private readonly notificationService: ClientProxy,
+    private readonly client: ClientGrpc,
   ) {}
 
   async createCharge({ card, amount, email }: PaymentsCreateChargeDto) {
     const paymentMethod = await this.stripe.paymentMethods.create({
       type: 'card',
-      card,
+      card: {
+        cvc: card.cvc,
+        exp_month: card.expMonth,
+        exp_year: card.expYear,
+        number: card.number,
+      },
     });
 
     const paymentIntent = await this.stripe.paymentIntents.create({
@@ -35,10 +45,20 @@ export class PaymentsService {
       payment_method_types: ['card'],
     });
 
-    this.notificationService.emit('notify_email', {
-      email,
-      text: `Your payment of $${amount} was received`,
-    });
+    // putting this example here to prove that we can do this in runtime not only during initailization
+    if (!this.notificationService) {
+      this.notificationService =
+        this.client.getService<NotificationServiceClient>(
+          NOTIFICATION_SERVICE_NAME,
+        );
+    }
+
+    this.notificationService
+      .notifyEmail({
+        email,
+        text: `Your payment of $${amount} was received`,
+      })
+      .subscribe(() => {});
 
     return paymentIntent;
   }

@@ -1,7 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
-import { DatabaseModule, LoggerModule } from '@app/common';
+import {
+  AUTH_PACKAGE_NAME,
+  DatabaseModule,
+  LoggerModule,
+  NOTIFICATIONS_PACKAGE_NAME,
+  PAYMENTS_PACKAGE_NAME,
+} from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
 import {
   ReservationDocument,
@@ -10,7 +16,12 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common/constants/services';
+import {
+  AUTH_SERVICE,
+  NOTIFICATIONS_SERVICE,
+  PAYMENTS_SERVICE,
+} from '@app/common/constants/services';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -29,21 +40,13 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common/constants/services';
       {
         name: AUTH_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            port: configService.get('AUTH_TCP_PORT'),
-          },
-        }),
-        inject: [ConfigService],
-      },
-    ]),
-    ClientsModule.registerAsync([
-      {
-        name: AUTH_SERVICE,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
-          options: {
-            port: configService.get('AUTH_TCP_PORT'),
+            package: AUTH_PACKAGE_NAME,
+            // path to the proto file for this service
+            protoPath: join(__dirname, '../../../proto/auth.proto'),
+            // url of the auth service
+            url: configService.get('AUTH_GRPC_URL'),
           },
         }),
         inject: [ConfigService],
@@ -51,9 +54,27 @@ import { AUTH_SERVICE, PAYMENTS_SERVICE } from '@app/common/constants/services';
       {
         name: PAYMENTS_SERVICE,
         useFactory: (configService: ConfigService) => ({
-          transport: Transport.TCP,
+          transport: Transport.GRPC,
           options: {
-            port: configService.get('PAYMENTS_TCP_PORT'),
+            package: PAYMENTS_PACKAGE_NAME,
+            // path to the proto file for this service
+            protoPath: join(__dirname, '../../../proto/payments.proto'),
+            // url of the auth service
+            url: configService.get('PAYMENTS_GRPC_URL'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: NOTIFICATIONS_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: NOTIFICATIONS_PACKAGE_NAME,
+            // path to the proto file for this service
+            protoPath: join(__dirname, '../../../proto/notifications.proto'),
+            // url of the auth service
+            url: configService.get('notifications_GRPC_URL'),
           },
         }),
         inject: [ConfigService],

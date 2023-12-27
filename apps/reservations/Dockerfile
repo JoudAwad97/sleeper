@@ -26,5 +26,7 @@ COPY package-lock.json ./
 RUN npm install --only=production
 
 COPY --from=development /usr/src/app/dist ./dist
+# copy the proto files
+COPY proto proto
 
 CMD ["node", "dist/apps/reservations/main"]
