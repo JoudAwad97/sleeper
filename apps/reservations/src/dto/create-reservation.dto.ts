@@ -1,4 +1,5 @@
 import { CreateChargeDto } from '@app/common';
+import { Field, InputType } from '@nestjs/graphql';
 import { Type } from 'class-transformer';
 import {
   IsDate,
@@ -7,13 +8,16 @@ import {
   ValidateNested,
 } from 'class-validator';
 
+@InputType()
 export class CreateReservationDto {
   @IsDate()
   @Type(() => Date)
+  @Field()
   startDate: Date;
 
   @IsDate()
   @Type(() => Date)
+  @Field()
   endDate: Date;
 
   @IsDefined()
@@ -25,5 +29,7 @@ export class CreateReservationDto {
    * this will create a new instance of the class and then validate it with the class-validator this is how to handle nested objects validation
    */
   @Type(() => CreateChargeDto)
+  // graphql related
+  @Field(() => CreateChargeDto)
   charge: CreateChargeDto;
 }
