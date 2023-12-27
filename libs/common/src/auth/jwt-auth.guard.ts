@@ -4,26 +4,32 @@ import {
   Inject,
   Injectable,
   Logger,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Observable, catchError, map, of, tap } from 'rxjs';
-import { AUTH_SERVICE } from '../constants/services';
-import { ClientProxy } from '@nestjs/microservices';
-import { UserDto } from '../dto';
+import { ClientGrpc } from '@nestjs/microservices';
 import { Reflector } from '@nestjs/core';
+import { AUTH_SERVICE_NAME, AuthServiceClient } from '../types';
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class JwtAuthGuard implements CanActivate, OnModuleInit {
   private readonly logger = new Logger(JwtAuthGuard.name);
+  private authService: AuthServiceClient;
 
   /**
    * allow us to communicate with other microservices through a TCP connection.
    * used for microservices communication
    */
   constructor(
-    @Inject(AUTH_SERVICE) private readonly authClient: ClientProxy,
+    @Inject(AUTH_SERVICE_NAME) private readonly client: ClientGrpc,
     private readonly reflector: Reflector,
   ) {}
+
+  onModuleInit() {
+    this.authService =
+      this.client.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
+  }
 
   canActivate(
     context: ExecutionContext,
@@ -44,8 +50,8 @@ export class JwtAuthGuard implements CanActivate {
      * then we listen to the response using the RxJS operators
      * then we set the user in the request object
      */
-    this.authClient
-      .send<UserDto>('authenticate', {
+    this.authService
+      .authenticate({
         Authentication: jwt,
       })
       .pipe(
@@ -67,7 +73,10 @@ export class JwtAuthGuard implements CanActivate {
             }
           }
 
-          context.switchToHttp().getRequest().user = res;
+          context.switchToHttp().getRequest().user = {
+            ...res,
+            _id: res.id,
+          };
         }),
         map(() => true),
         catchError((err) => {
