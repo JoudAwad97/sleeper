@@ -34,6 +34,10 @@ export class UsersService {
     throw new UnprocessableEntityException('Email already exists');
   }
 
+  async findAll() {
+    return this.usersRepository.find({});
+  }
+
   async verifyUser(email: string, password: string) {
     const user = await this.usersRepository.findOne({ email });
     const isPasswordValid = await bcrypt.compare(password, user.password);

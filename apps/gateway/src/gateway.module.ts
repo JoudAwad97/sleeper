@@ -38,6 +38,14 @@ import { authContext } from './auth.context';
                 name: 'reservations',
                 url: configService.get<string>('RESERVATIONS_GRAPHQL_URL'),
               },
+              {
+                name: 'auth',
+                url: configService.get<string>('AUTH_GRAPHQL_URL'),
+              },
+              {
+                name: 'payments',
+                url: configService.get<string>('PAYMENTS_GRAPHQL_URL'),
+              },
             ],
           }),
           /**
