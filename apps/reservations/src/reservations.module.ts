@@ -3,10 +3,13 @@ import { ReservationsService } from './reservations.service';
 import { ReservationsController } from './reservations.controller';
 import {
   AUTH_PACKAGE_NAME,
+  AUTH_SERVICE_NAME,
   DatabaseModule,
   LoggerModule,
   NOTIFICATIONS_PACKAGE_NAME,
+  NOTIFICATION_SERVICE_NAME,
   PAYMENTS_PACKAGE_NAME,
+  PAYMENTS_SERVICE_NAME,
 } from '@app/common';
 import { ReservationsRepository } from './reservations.repository';
 import {
@@ -16,11 +19,6 @@ import {
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  AUTH_SERVICE,
-  NOTIFICATIONS_SERVICE,
-  PAYMENTS_SERVICE,
-} from '@app/common/constants/services';
 import { join } from 'path';
 
 @Module({
@@ -38,7 +36,7 @@ import { join } from 'path';
     }),
     ClientsModule.registerAsync([
       {
-        name: AUTH_SERVICE,
+        name: AUTH_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
           transport: Transport.GRPC,
           options: {
@@ -52,7 +50,7 @@ import { join } from 'path';
         inject: [ConfigService],
       },
       {
-        name: PAYMENTS_SERVICE,
+        name: PAYMENTS_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
           transport: Transport.GRPC,
           options: {
@@ -66,7 +64,7 @@ import { join } from 'path';
         inject: [ConfigService],
       },
       {
-        name: NOTIFICATIONS_SERVICE,
+        name: NOTIFICATION_SERVICE_NAME,
         useFactory: (configService: ConfigService) => ({
           transport: Transport.GRPC,
           options: {
